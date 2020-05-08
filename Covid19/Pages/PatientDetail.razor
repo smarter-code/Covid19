@@ -1,0 +1,115 @@
+﻿@using Covid19.Data
+@using Covid19.Service
+@inject IPatientService service
+@inject IJSRuntime jsRuntime
+
+
+<div class="modal" tabindex="-1" role="dialog" id="patientModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@CustomHeader</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="@PatientObject" OnValidSubmit="@HandleValidSubmit">
+                    <DataAnnotationsValidator />
+                    <div class="form-group">
+                        <label for="patientName">Patient Name</label>
+                        <input type="hidden" @bind-value="@PatientObject.Id" />
+                        <InputText id="name" class="form-control" @bind-Value="@PatientObject.Name" />
+                        <ValidationMessage For="@(() => PatientObject.Name)" />
+
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Gender</label>
+                        <InputSelect id="Summary" class="form-control"
+                                     @bind-Value="PatientObject.Gender">
+                            <option value=""></option>
+                            @foreach (var gender in PatientGenderList)
+                            {
+                                <option value="@gender">
+                                    @gender
+                                </option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(() => PatientObject.Gender)" />
+                    </div>
+                    <div class="form-group">
+                        <label for="dueDate">Date of Birth</label>
+                        <input type="date" id="addition" name="math" @bind-value="@PatientObject.DateOfBirth" />
+                    </div>
+                    <div class="form-group">
+                        <label for="patientAddress">Patient Address</label>
+                        <InputText id="name" class="form-control" @bind-Value="@PatientObject.Address" />
+                        <ValidationMessage For="@(() => PatientObject.Address)" />
+                    </div>
+                    <div class="form-group">
+                        <label for="patientPhoneNumber">Patient Phone Number</label>
+                        <InputText id="name" class="form-control" @bind-Value="@PatientObject.PhoneNumber" />
+                        <ValidationMessage For="@(() => PatientObject.PhoneNumber)" />
+                    </div>
+                    <div class="form-group">
+                        <label for="patientPhoneNumber">Patient Notes</label>
+                        <InputText id="name" class="form-control" @bind-Value="@PatientObject.Notes" />
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <InputSelect id="Summary" class="form-control"
+                                     @bind-Value="PatientObject.Status">
+                            <option value=""></option>
+                            @foreach (var status in PatientStatusList)
+                            {
+                                <option value="@status">
+                                    @status
+                                </option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(() => PatientObject.Status)" />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Patient PatientObject { get; set; }
+    [Parameter]
+    public Action DataChanged { get; set; }
+    [Parameter]
+    public RenderFragment CustomHeader { get; set; }
+
+    List<string> PatientStatusList =
+        new List<string>() { "Normal", "Suspect","Highly suspect", "Waiting for Testing", "Tested",
+            "Quarantined at Home ", "Quarantined at Center", "Isolated at Home", "Isolated at Center",
+            "Recovered", "Died" };
+
+    List<string> PatientGenderList =
+      new List<string>() { "Male", "Female" };
+
+    private async Task ClosePatientModal()
+    {
+        await jsRuntime.InvokeAsync<object>("CloseModal", "patientModal");
+    }
+
+    private async void HandleValidSubmit()
+    {
+        if (PatientObject.Id == 0)
+        {
+            await service.Add(PatientObject);
+        }
+        else
+        {
+            await service.Update(PatientObject);
+        }
+        await ClosePatientModal();
+        DataChanged?.Invoke();
+    }
+}
