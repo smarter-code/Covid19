@@ -1,10 +1,13 @@
 ﻿@using Covid19.Data
 @using Covid19.Service
 @inject IPatientService service
+@inject IStateService stateService
+@inject IMuncipalityService municipalityService
+@inject IStatusService statusService
 @inject IJSRuntime jsRuntime
 
 
-<div class="modal" tabindex="-1" role="dialog" id="patientModal">
+<div class="modal" data-backdrop="static" tabindex="-1" role="dialog" id="patientModal">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -47,29 +50,68 @@
                         <ValidationMessage For="@(() => PatientObject.Address)" />
                     </div>
                     <div class="form-group">
+                        <label for="patientAddress">Patient Municipality</label>
+                        <select @bind="PatientObject.MunicipalityId">
+                            <option value=""></option>
+                            @foreach (var municpality in allMunicipalities)
+                            {
+                                <option value="@municpality.Id">
+                                    @municpality.Name
+                                </option>
+                            }
+                        </select>
+                        <ValidationMessage For="@(() => PatientObject.MunicipalityId)" />
+                    </div>
+                    <div class="form-group">
+                        <label for="patientAddress">Patient State</label>
+                        <select @bind="PatientObject.StateId">
+                            <option value=""></option>
+                            @foreach (var state in allStates)
+                            {
+                                <option value="@state.Id">
+                                    @state.Name
+                                </option>
+                            }
+                        </select>
+                        <ValidationMessage For="@(() => PatientObject.StateId)" />
+                    </div>
+                    <div class="form-group">
                         <label for="patientPhoneNumber">Patient Phone Number</label>
                         <InputText id="name" class="form-control" @bind-Value="@PatientObject.PhoneNumber" />
                         <ValidationMessage For="@(() => PatientObject.PhoneNumber)" />
                     </div>
                     <div class="form-group">
+                        <label for="patientAddress">Status</label>
+                        <select @bind="PatientObject.StatusId">
+                            <option value=""></option>
+                            @foreach (var state in allStatuses)
+                            {
+                                <option value="@state.Id">
+                                    @state.Name
+                                </option>
+                            }
+                        </select>
+                        <ValidationMessage For="@(() => PatientObject.StatusId)" />
+                    </div>
+
+                    @*<div class="form-group">
+                            <label for="status">Status</label>
+                            <InputSelect id="Summary" class="form-control"
+                                         @bind-Value="PatientObject.Status">
+                                <option disabled value=""></option>
+                                @foreach (var status in PatientStatusList)
+                                {
+                                    <option value="@status">
+                                        @status
+                                    </option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(() => PatientObject.Status)" />
+                        </div>*@
+                    <div class="form-group">
                         <label for="patientPhoneNumber">Patient Notes</label>
                         <InputText id="name" class="form-control" @bind-Value="@PatientObject.Notes" />
                     </div>
-                    <div class="form-group">
-                        <label for="status">Status</label>
-                        <InputSelect id="Summary" class="form-control"
-                                     @bind-Value="PatientObject.Status">
-                            <option value=""></option>
-                            @foreach (var status in PatientStatusList)
-                            {
-                                <option value="@status">
-                                    @status
-                                </option>
-                            }
-                        </InputSelect>
-                        <ValidationMessage For="@(() => PatientObject.Status)" />
-                    </div>
-
                     <button type="submit" class="btn btn-primary">Save</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 </EditForm>
@@ -88,11 +130,22 @@
 
     List<string> PatientStatusList =
         new List<string>() { "Normal", "Suspect","Highly suspect", "Waiting for Testing", "Tested",
-            "Quarantined at Home ", "Quarantined at Center", "Isolated at Home", "Isolated at Center",
+            "Quarantined at Home", "Quarantined at Center", "Isolated at Home", "Isolated at Center",
             "Recovered", "Died" };
 
     List<string> PatientGenderList =
       new List<string>() { "Male", "Female" };
+
+    List<State> allStates = new List<State>();
+    List<Municipality> allMunicipalities = new List<Municipality>();
+    List<Status> allStatuses = new List<Status>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        allStates = await stateService.Get();
+        allMunicipalities = await municipalityService.Get();
+        allStatuses = await statusService.Get();
+    }
 
     private async Task ClosePatientModal()
     {
@@ -103,10 +156,14 @@
     {
         if (PatientObject.Id == 0)
         {
+            //PatientObject.Municipality = allMunicipalities.FirstOrDefault(m => m.Id == PatientObject.MunicipalityId);
+            //PatientObject.State = allStates.FirstOrDefault(s => s.Id == PatientObject.StateId);
             await service.Add(PatientObject);
         }
         else
         {
+            //PatientObject.Municipality = allMunicipalities.FirstOrDefault(m => m.Id == PatientObject.MunicipalityId);
+            //PatientObject.State = allStates.FirstOrDefault(s => s.Id == PatientObject.StateId);
             await service.Update(PatientObject);
         }
         await ClosePatientModal();

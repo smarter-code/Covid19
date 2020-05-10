@@ -4,52 +4,65 @@
 @using Covid19.Service
 @inject IPatientService service
 
-<h1>Patients</h1>
+<AuthorizeView>
+    <Authorized>
+
+        <h1>Patients</h1>
 
 
-@if (patients == null)
-{
-    <p><em>Loading patients from the database</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Name</th>
-                <th>Gender</th>
-                <th>Date Of Birth</th>
-                <th>Address</th>
-                <th>Phone Number</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var patient in patients)
-            {
-                <tr>
-                    <td>@patient.Id</td>
-                    <td>@patient.Name</td>
-                    <td>@patient.Gender</td>
-                    <td>@patient.DateOfBirth?.ToShortDateString()</td>
-                    <td>@patient.Address</td>
-                    <td>@patient.PhoneNumber</td>
-                    <td>@patient.Status</td>
-                    <td><input type="button" class="btn btn-primary" @onclick="(() => PrepareForEdit(patientObject))" data-toggle="modal" data-target="#patientModal" value="Edit" /></td>
+        @if (patients == null)
+        {
+            <p><em>Loading patients from the database</em></p>
+        }
+        else
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Name</th>
+                        <th>Gender</th>
+                        <th>Year Of Birth (Age)</th>
+                        <th>Address</th>
+                        <th>State</th>
+                        <th>Municipality</th>
+                        <th>Phone Number</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var patient in patients)
+                    {
+                        <tr>
+                            <td>@patient.Id</td>
+                            <td>@patient.Name</td>
+                            <td>@patient.Gender</td>
+                            <td>@(patient.DateOfBirth?.Year.ToString() + " (" + (DateTime.Now.Year - patient.DateOfBirth?.Year).ToString() + " years)")</td>
+                            <td>@patient.Address</td>
+                            <td>@patient.State.Name</td>
+                            <td>@patient.Municipality.Name</td>
+                            <td>@patient.PhoneNumber</td>
+                            <td>@patient.Status.Name</td>
+                            <td><input type="button" class="btn btn-primary" @onclick="(() => PrepareForEdit(patient))" data-toggle="modal" data-target="#patientModal" value="Edit" /></td>
 
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-<div>
-    <input type="button" data-toggle="modal" data-target="#patientModal" class="btn btn-primary" value="Add Patient" @onclick="(() => InitializePatientObject())" />
-</div>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        <div>
+            <input type="button" data-toggle="modal" data-target="#patientModal" class="btn btn-primary" value="Add Patient" @onclick="(() => InitializePatientObject())" />
+        </div>
 
-<PatientDetail PatientObject=patientObject DataChanged="@DataChanged">
-    <CustomHeader>@customHeader</CustomHeader>
-</PatientDetail>
+        <PatientDetail PatientObject=patientObject DataChanged="@DataChanged">
+            <CustomHeader>@customHeader</CustomHeader>
+        </PatientDetail>
+    </Authorized>
+    <NotAuthorized>
+        Sorry, You are not allowed to access this page
+    </NotAuthorized>
+</AuthorizeView>
+
 
 @code {
     List<Patient> patients;

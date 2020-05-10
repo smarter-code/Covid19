@@ -1,0 +1,56 @@
+﻿@page "/overview"
+
+@using Covid19.Data
+@using Covid19.Service
+@inject IReportingService reportingService
+
+<AuthorizeView>
+    <Authorized>
+
+        <h1>Overview</h1>
+
+
+        @if (reportingEntries == null)
+        {
+            <p><em>Waiting for the report</em></p>
+        }
+        else
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var reportingEntry in reportingEntries)
+                    {
+                        <tr>
+                            <td>@reportingEntry.State</td>
+                            <td>@reportingEntry.Count</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+
+    </Authorized>
+    <NotAuthorized>
+        Sorry, You are not allowed to access this page
+    </NotAuthorized>
+</AuthorizeView>
+
+
+@code {
+    List<AggregatedReportEntry> reportingEntries;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        reportingEntries = await reportingService.GetAggregatedReports();
+
+    }
+
+
+}

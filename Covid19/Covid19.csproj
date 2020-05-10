@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Data\WeatherForecast.cs" />
+    <Compile Remove="Data\WeatherForecastService.cs" />
     <Compile Remove="Pages\Create.cshtml.cs" />
     <Compile Remove="Pages\Delete.cshtml.cs" />
     <Compile Remove="Pages\Details.cshtml.cs" />

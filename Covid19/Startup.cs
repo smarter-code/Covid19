@@ -16,6 +16,7 @@ using Microsoft.Extensions.Hosting;
 using Covid19.Areas.Identity;
 using Covid19.Data;
 using Covid19.Service;
+using Microsoft.AspNetCore.Http;
 
 namespace Covid19
 {
@@ -34,15 +35,19 @@ namespace Covid19
         {
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+                    Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Transient);
+            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
                  .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
-            services.AddSingleton<WeatherForecastService>();
-            services.AddTransient<IPatientService, PatientService>();
+            services.AddScoped<IPatientService, PatientService>();
+            services.AddScoped<IReportingService, ReportingService>();
+            services.AddScoped<IMuncipalityService, MuncipalityService>();
+            services.AddScoped<IStateService, StateService>();
+            services.AddScoped<IStatusService, StatusService>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
         }
 
@@ -51,7 +56,7 @@ namespace Covid19
             //initializing custom roles   
             var RoleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var UserManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
-            string[] roleNames = { "Admin", "SMOH Epidemiology", "Call Center" };
+            string[] roleNames = { "Admin", "SMOH Epidemiology", "Call Center", "Ambulance Team", "Lab Team" };
             IdentityResult roleResult;
 
             foreach (var roleName in roleNames)
@@ -59,37 +64,25 @@ namespace Covid19
                 var roleExist = await RoleManager.RoleExistsAsync(roleName);
                 if (!roleExist)
                 {
-                    //create the roles and seed them to the database: Question 1  
+
                     roleResult = await RoleManager.CreateAsync(new IdentityRole(roleName));
                 }
             }
 
-            IdentityUser user = await UserManager.FindByEmailAsync("admin@blogofpi.com");
+            string adminEmail = "mohdrash1990@hotmail.com";
 
-            if (user == null)
+            IdentityUser rootUser = await UserManager.FindByEmailAsync(adminEmail);
+
+            if (rootUser == null)
             {
-                user = new IdentityUser()
+                rootUser = new IdentityUser()
                 {
-                    UserName = "admin@blogofpi.com",
-                    Email = "admin@blogofpi.com",
+                    UserName = adminEmail,
+                    Email = adminEmail,
                 };
-                await UserManager.CreateAsync(user, "Test@579");
+                await UserManager.CreateAsync(rootUser, "Test@2462244__!");
             }
-            await UserManager.AddToRoleAsync(user, "Admin");
-
-
-            IdentityUser user1 = await UserManager.FindByEmailAsync("jane.doe@blogofpi.com");
-
-            if (user1 == null)
-            {
-                user1 = new IdentityUser()
-                {
-                    UserName = "jane.doe@blogofpi.com",
-                    Email = "jane.doe@blogofpi.com",
-                };
-                await UserManager.CreateAsync(user1, "Test@246");
-            }
-            await UserManager.AddToRoleAsync(user1, "User");
+            await UserManager.AddToRoleAsync(rootUser, "Admin");
 
         }
 
