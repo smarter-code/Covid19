@@ -1,10 +1,9 @@
-﻿using Covid19.Data;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Covid19.Service
+namespace Covid19.Data
 {
     public class Gender
     {

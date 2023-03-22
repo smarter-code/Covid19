@@ -34,6 +34,7 @@ namespace Covid19.Areas.Identity.Pages.Account
             _roleManager = roleManager;
             _logger = logger;
             Roles = _roleManager.Roles.Select(r => new SelectListItem() { Text = r.Name, Value = r.Name }).ToList();
+
         }
 
         [BindProperty]
@@ -50,6 +51,11 @@ namespace Covid19.Areas.Identity.Pages.Account
             [EmailAddress]
             [Display(Name = "Email")]
             public string Email { get; set; }
+
+            [Required]
+            [StringLength(25, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 3)]
+            [Display(Name = "Username")]
+            public string Username { get; set; }
 
             [Required]
             [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
@@ -79,13 +85,14 @@ namespace Covid19.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
-                var user = new IdentityUser { UserName = Input.Email, Email = Input.Email };
+                var user = new IdentityUser { UserName = Input.Username, Email = Input.Email };
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
                 {
                     await _userManager.AddToRoleAsync(user, Input.Role);
                     _logger.LogInformation("User created a new account with password.");
+                    return Redirect("/users");
 
                 }
                 foreach (var error in result.Errors)

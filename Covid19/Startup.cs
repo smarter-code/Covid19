@@ -36,7 +36,13 @@ namespace Covid19
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Transient);
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
+            services.AddDefaultIdentity<IdentityUser>(options =>
+            {
+                options.SignIn.RequireConfirmedAccount = false;
+                //options.SignIn.RequireConfirmedEmail = false;
+                //options.SignIn.RequireConfirmedPhoneNumber = false;
+                //options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            })
                  .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddRazorPages();
@@ -47,6 +53,7 @@ namespace Covid19
             services.AddScoped<IMuncipalityService, MuncipalityService>();
             services.AddScoped<IStateService, StateService>();
             services.AddScoped<IStatusService, StatusService>();
+            services.AddScoped<IHospitalService, HospitalService>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
         }
@@ -56,7 +63,7 @@ namespace Covid19
             //initializing custom roles   
             var RoleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var UserManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
-            string[] roleNames = { "Admin", "SMOH Epidemiology", "Call Center", "Ambulance Team", "Lab Team" };
+            string[] roleNames = { "Admin", "SMOH Epidemiology", "Call Center", "Ambulance Team", "Lab Team", "Medical Officer" };
             IdentityResult roleResult;
 
             foreach (var roleName in roleNames)
@@ -69,7 +76,7 @@ namespace Covid19
                 }
             }
 
-            string adminEmail = "mohdrash1990@hotmail.com";
+            string adminEmail = "superadmin@sudancovid19.com";
 
             IdentityUser rootUser = await UserManager.FindByEmailAsync(adminEmail);
 
@@ -80,7 +87,7 @@ namespace Covid19
                     UserName = adminEmail,
                     Email = adminEmail,
                 };
-                await UserManager.CreateAsync(rootUser, "Test@2462244__!");
+                var result = await UserManager.CreateAsync(rootUser, "Test@2462244__!");
             }
             await UserManager.AddToRoleAsync(rootUser, "Admin");
 

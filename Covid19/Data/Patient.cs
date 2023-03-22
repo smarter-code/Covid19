@@ -31,9 +31,9 @@ namespace Covid19.Data
         public int? StateId { get; set; }
         public virtual State State { get; set; }
 
-        [Required(ErrorMessage = "Municipality is required")]
-        public int? MunicipalityId { get; set; }
-        public virtual Municipality Municipality { get; set; }
+        //[Required(ErrorMessage = "Municipality is required")]
+        //public int? MunicipalityId { get; set; }
+        //public virtual Municipality Municipality { get; set; }
 
 
     }

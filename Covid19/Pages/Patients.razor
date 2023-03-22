@@ -25,7 +25,7 @@
                         <th>Year Of Birth (Age)</th>
                         <th>Address</th>
                         <th>State</th>
-                        <th>Municipality</th>
+                        @*<th>Municipality</th>*@
                         <th>Phone Number</th>
                         <th>Status</th>
                     </tr>
@@ -40,7 +40,7 @@
                             <td>@(patient.DateOfBirth?.Year.ToString() + " (" + (DateTime.Now.Year - patient.DateOfBirth?.Year).ToString() + " years)")</td>
                             <td>@patient.Address</td>
                             <td>@patient.State.Name</td>
-                            <td>@patient.Municipality.Name</td>
+                            @*<td>@patient.Municipality.Name</td>*@
                             <td>@patient.PhoneNumber</td>
                             <td>@patient.Status.Name</td>
                             <td><input type="button" class="btn btn-primary" @onclick="(() => PrepareForEdit(patient))" data-toggle="modal" data-target="#patientModal" value="Edit" /></td>

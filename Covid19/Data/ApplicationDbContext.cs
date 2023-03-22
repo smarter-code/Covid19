@@ -35,6 +35,8 @@ namespace Covid19.Data
         public DbSet<Municipality> Municipalities { get; set; }
         public DbSet<Status> Status { get; set; }
 
+        public DbSet<Hospital> Hospitals { get; set; }
+
 
 
         public override int SaveChanges()

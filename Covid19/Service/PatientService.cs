@@ -25,7 +25,7 @@ namespace Covid19.Service
         }
         public async Task<List<Patient>> Get()
         {
-            return await _context.Patients.Include(p => p.State).Include(p => p.Municipality).Include(p => p.Status).ToListAsync();
+            return await _context.Patients.Include(p => p.State)/*.Include(p => p.Municipality)*/.Include(p => p.Status).ToListAsync();
         }
 
         public async Task<Patient> Get(int id)

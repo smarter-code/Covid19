@@ -49,19 +49,19 @@
                         <InputText id="name" class="form-control" @bind-Value="@PatientObject.Address" />
                         <ValidationMessage For="@(() => PatientObject.Address)" />
                     </div>
-                    <div class="form-group">
-                        <label for="patientAddress">Patient Municipality</label>
-                        <select @bind="PatientObject.MunicipalityId">
-                            <option value=""></option>
-                            @foreach (var municpality in allMunicipalities)
-                            {
-                                <option value="@municpality.Id">
-                                    @municpality.Name
-                                </option>
-                            }
-                        </select>
-                        <ValidationMessage For="@(() => PatientObject.MunicipalityId)" />
-                    </div>
+                    @*<div class="form-group">
+                            <label for="patientAddress">Patient Municipality</label>
+                            <select @bind="PatientObject.MunicipalityId">
+                                <option value=""></option>
+                                @foreach (var municpality in allMunicipalities)
+                                {
+                                    <option value="@municpality.Id">
+                                        @municpality.Name
+                                    </option>
+                                }
+                            </select>
+                            <ValidationMessage For="@(() => PatientObject.MunicipalityId)" />
+                        </div>*@
                     <div class="form-group">
                         <label for="patientAddress">Patient State</label>
                         <select @bind="PatientObject.StateId">
@@ -128,10 +128,10 @@
     [Parameter]
     public RenderFragment CustomHeader { get; set; }
 
-    List<string> PatientStatusList =
-        new List<string>() { "Normal", "Suspect","Highly suspect", "Waiting for Testing", "Tested",
-            "Quarantined at Home", "Quarantined at Center", "Isolated at Home", "Isolated at Center",
-            "Recovered", "Died" };
+    //List<string> PatientStatusList =
+    //    new List<string>() { "Normal", "Suspect","Highly suspect", "Waiting for Testing", "Tested",
+    //        "Quarantined at Home", "Quarantined at Center", "Isolated at Home", "Isolated at Center",
+    //        "Recovered", "Died" };
 
     List<string> PatientGenderList =
       new List<string>() { "Male", "Female" };

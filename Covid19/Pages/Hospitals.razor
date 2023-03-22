@@ -1,0 +1,112 @@
+﻿@page "/hospitals"
+
+@using Covid19.Data
+@using Covid19.Service
+@inject IHospitalService service
+
+<AuthorizeView>
+    <Authorized>
+
+        <h1>Hospitals</h1>
+
+
+        @if (hospitals == null)
+        {
+            <p><em>Loading hospitals from the database</em></p>
+        }
+        else
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        @*<th>Id</th>*@
+                        <th>Name</th>
+                        <th>State</th>
+                        <th>Max beds</th>
+                        <th>Available beds</th>
+                        <th>Max ventilators</th>
+                        <th>Available ventilators</th>
+                        <th>Max ICU beds</th>
+                        <th>Available ICU beds</th>
+                        <th>ER Available</th>
+                        <th>Medical Officer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var hospital in hospitals)
+                    {
+
+                        <tr>
+                            @*<td>@hospital.Id</td>*@
+                            <td>@hospital.Name</td>
+                            <td>@hospital.State.Name</td>
+                            <td>@hospital.MaxBedsCount</td>
+                            <td>@hospital.AvailableBedsCount</td>
+                            <td>@hospital.MaxVentilatorCount</td>
+                            <td>@hospital.AvailableVentilatorCount</td>
+                            <td>@hospital.MaxICUBedsCount</td>
+                            <td>@hospital.AvailableICUBedsCount</td>
+                            @if (hospital.IsERActive)
+                            {
+                                <td><span class="badge badge-success">Yes</span></td>
+                            }
+                            else
+                            {
+                                <td><span class="badge badge-danger">No</span></td>
+                            }
+
+                            <td>@hospital.User?.UserName</td>
+
+
+                            <td><input type="button" class="btn btn-primary" @onclick="(() => PrepareForEdit(hospital))" data-toggle="modal" data-target="#hospitalModal" value="Edit" /></td>
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        <div>
+            <input type="button" data-toggle="modal" data-target="#hospitalModal" class="btn btn-primary" value="Add Hospital" @onclick="(() => InitializeHospitalObject())" />
+        </div>
+
+        <HospitalDetail HospitalObject=hospitalObject DataChanged="@DataChanged">
+            <CustomHeader>@customHeader</CustomHeader>
+        </HospitalDetail>
+    </Authorized>
+    <NotAuthorized>
+        Sorry, You are not allowed to access this page
+    </NotAuthorized>
+</AuthorizeView>
+
+
+@code {
+    List<Hospital> hospitals;
+    Hospital hospitalObject = new Hospital();
+    string customHeader = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        hospitals = await service.Get();
+
+    }
+
+    private void InitializeHospitalObject()
+    {
+
+        hospitalObject = new Hospital();
+        customHeader = "Add New Hospital";
+
+    }
+
+    private void PrepareForEdit(Hospital hospital)
+    {
+        customHeader = "Edit Hospital";
+        hospitalObject = hospital;
+    }
+
+    private async void DataChanged()
+    {
+        hospitals = await service.Get();
+        StateHasChanged();
+    }
+}

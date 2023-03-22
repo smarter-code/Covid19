@@ -1,0 +1,148 @@
+﻿@using Covid19.Data
+@using Covid19.Service
+@using Microsoft.AspNetCore.Identity;
+@inject IHospitalService service
+@inject IStateService stateService
+@inject UserManager<IdentityUser> _UserManager
+@inject IJSRuntime jsRuntime
+
+
+<div class="modal" data-backdrop="static" tabindex="-1" role="dialog" id="hospitalModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@CustomHeader</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="@HospitalObject" OnValidSubmit="@HandleValidSubmit">
+                    <DataAnnotationsValidator />
+                    <div class="form-group">
+                        <label for="patientName">Hospital Name</label>
+                        <input type="hidden" @bind-value="@HospitalObject.Id" />
+                        <InputText id="name" class="form-control" @bind-Value="@HospitalObject.Name" />
+                        <ValidationMessage For="@(() => HospitalObject.Name)" />
+
+                    </div>
+                    <div class="form-group">
+                        <label for="patientAddress">Hospital State</label>
+                        <select @bind="HospitalObject.StateId">
+                            <option value=""></option>
+                            @foreach (var state in allStates)
+                            {
+                                <option value="@state.Id">
+                                    @state.Name
+                                </option>
+                            }
+                        </select>
+                        <ValidationMessage For="@(() => HospitalObject.StateId)" />
+                    </div>
+                    <div class="form-group">
+                        <label for="patientAddress">Max beds Capacity</label>
+                        <input type="number" class="form-control" @bind="@HospitalObject.MaxBedsCount" />
+                        <ValidationMessage For="@(() => HospitalObject.MaxBedsCount)" />
+                    </div>
+                    <div class="form-group">
+                        <label for="patientAddress">Available beds Capacity</label>
+                        <input type="number" class="form-control" @bind="@HospitalObject.AvailableBedsCount" />
+                        <ValidationMessage For="@(() => HospitalObject.AvailableBedsCount)" />
+                    </div>
+                    <div class="form-group">
+                        <label for="patientAddress">Max ventilator Capacity</label>
+                        <input type="number" class="form-control" @bind="@HospitalObject.MaxVentilatorCount" />
+                        <ValidationMessage For="@(() => HospitalObject.MaxVentilatorCount)" />
+                    </div>
+                    <div class="form-group">
+                        <label for="patientAddress">Available ventilator Capacity</label>
+                        <input type="number" class="form-control" @bind="@HospitalObject.AvailableVentilatorCount" />
+                        <ValidationMessage For="@(() => HospitalObject.AvailableVentilatorCount)" />
+                    </div>
+                    <div class="form-group">
+                        <label for="patientAddress">Max ICU beds Capacity</label>
+                        <input type="number" class="form-control" @bind="@HospitalObject.MaxICUBedsCount" />
+                        <ValidationMessage For="@(() => HospitalObject.MaxICUBedsCount)" />
+                    </div>
+                    <div class="form-group">
+                        <label for="patientAddress">Available ICU beds Capacity</label>
+                        <input type="number" class="form-control" @bind="@HospitalObject.AvailableICUBedsCount" />
+                        <ValidationMessage For="@(() => HospitalObject.AvailableICUBedsCount)" />
+                    </div>
+                    <div class="form-group">
+                        <label for="patientAddress">Is ER Active</label>
+                        <input type="checkbox" data-toggle="toggle" data-size="mini" @bind="@HospitalObject.IsERActive" />
+                        <ValidationMessage For="@(() => HospitalObject.IsERActive)" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="patientAddress">Responsible Medical Officer</label>
+                        <select @bind="HospitalObject.UserId">
+                            <option value=""></option>
+                            @foreach (var user in medicalOfficerUsers)
+                            {
+                                <option value="@user.Id">
+                                    @user.UserName
+                                </option>
+                            }
+                        </select>
+                        <ValidationMessage For="@(() => HospitalObject.Id)" />
+                    </div>
+
+
+
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Hospital HospitalObject { get; set; }
+    [Parameter]
+    public Action DataChanged { get; set; }
+    [Parameter]
+    public RenderFragment CustomHeader { get; set; }
+
+
+    List<IdentityUser> medicalOfficerUsers = new List<IdentityUser>();
+    List<State> allStates = new List<State>();
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        medicalOfficerUsers = _UserManager.Users/*.Where(u=> u.)*/.Select(x => new IdentityUser
+        {
+            Id = x.Id,
+            UserName = x.UserName,
+            Email = x.Email
+        }).ToList();
+        allStates = await stateService.Get();
+    }
+
+    private async Task CloseHospitalModal()
+    {
+        await jsRuntime.InvokeAsync<object>("CloseModal", "hospitalModal");
+    }
+
+    private async void HandleValidSubmit()
+    {
+        if (HospitalObject.Id == 0)
+        {
+            //PatientObject.Municipality = allMunicipalities.FirstOrDefault(m => m.Id == PatientObject.MunicipalityId);
+            //PatientObject.State = allStates.FirstOrDefault(s => s.Id == PatientObject.StateId);
+            await service.Add(HospitalObject);
+        }
+        else
+        {
+            //PatientObject.Municipality = allMunicipalities.FirstOrDefault(m => m.Id == PatientObject.MunicipalityId);
+            //PatientObject.State = allStates.FirstOrDefault(s => s.Id == PatientObject.StateId);
+            await service.Update(HospitalObject);
+        }
+        await CloseHospitalModal();
+        DataChanged?.Invoke();
+    }
+}

@@ -25,18 +25,12 @@ namespace Covid19.Service
         }
         public async Task<List<AggregatedReportEntry>> GetAggregatedReports()
         {
-            var status = await _context.Patients.Select(p => p.Status).Distinct().ToListAsync();
-            var reportEntries = new List<AggregatedReportEntry>();
-            //foreach (var state in status)
-            //{
-            //    reportEntries.Add(new AggregatedReportEntry()
-            //    {
-            //        State = state,
-            //        Count = _context.Patients
-            //        .Where(p => p.Status == state).Count()
-            //    });
-            //}
-
+            var patients = await _context.Patients.Include(p => p.Status).ToListAsync();
+            var groupedPatients =
+                                from patient in patients
+                                group patient by patient.Status.Name into newGroup
+                                select newGroup;
+            var reportEntries = groupedPatients.Select(g => new AggregatedReportEntry() { State = g.Key, Count = g.Count() }).ToList();
             reportEntries.Add(new AggregatedReportEntry() { State = "All Cases", Count = _context.Patients.Count() });
             return reportEntries;
         }

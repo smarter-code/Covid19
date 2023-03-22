@@ -4,14 +4,16 @@ using Covid19.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Covid19.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200517181640_AddedHospitalTable")]
+    partial class AddedHospitalTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,9 +37,6 @@ namespace Covid19.Data.Migrations
                     b.Property<int>("AvailableVentilatorCount")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsERActive")
-                        .HasColumnType("bit");
-
                     b.Property<int>("MaxBedsCount")
                         .HasColumnType("int");
 
@@ -48,19 +47,12 @@ namespace Covid19.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("StateId")
-                        .IsRequired()
-                        .HasColumnType("int");
 
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("StateId");
 
                     b.HasIndex("UserId");
 
@@ -369,12 +361,6 @@ namespace Covid19.Data.Migrations
 
             modelBuilder.Entity("Covid19.Data.Hospital", b =>
                 {
-                    b.HasOne("Covid19.Data.State", "State")
-                        .WithMany()
-                        .HasForeignKey("StateId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
